@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Order Tracking System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Welcome to Order Tracking System</p>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% else %}
+
+<div class="dashboard-grid">
+    <!-- Stats Cards -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <h3>Total Orders</h3>
+            <p class="stat-number">{{ stats.total_orders }}</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <h3>Pending</h3>
+            <p class="stat-number pending">{{ stats.pending_count }}</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">⚙️</div>
+            <h3>Processing</h3>
+            <p class="stat-number processing">{{ stats.processing_count }}</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <h3>Packed</h3>
+            <p class="stat-number packed">{{ stats.packed_count }}</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">🚚</div>
+            <h3>Shipped</h3>
+            <p class="stat-number shipped">{{ stats.shipped_count }}</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">🚗</div>
+            <h3>Out for Delivery</h3>
+            <p class="stat-number">{{ stats.out_for_delivery_count }}</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <h3>Delivered</h3>
+            <p class="stat-number delivered">{{ stats.delivered_count }}</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">❌</div>
+            <h3>Cancelled</h3>
+            <p class="stat-number cancelled">{{ stats.cancelled_count }}</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <h3>Total Revenue</h3>
+            <p class="stat-number revenue">${{ stats.total_revenue }}</p>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="recent-orders-section">
+        <h2>Recent Orders</h2>
+        {% if stats.recent_orders %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in stats.recent_orders %}
+                <tr>
+                    <td><strong>{{ order.order_id }}</strong></td>
+                    <td>{{ order.customer_name }}</td>
+                    <td>{{ order.product_name }}</td>
+                    <td><span class="status-badge status-{{ order.status.lower().replace(' ', '-') }}">{{ order.status }}</span></td>
+                    <td>${{ "%.2f"|format(order.price * order.quantity) }}</td>
+                    <td>{{ order.order_date }}</td>
+                    <td><a href="{{ url_for('orders.view_order_details', order_id=order.order_id) }}" class="btn btn-small btn-info">View</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted">No orders yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="dashboard-actions">
+    <a href="{{ url_for('orders.add_order') }}" class="btn btn-primary">+ Add New Order</a>
+    <a href="{{ url_for('orders.view_orders') }}" class="btn btn-secondary">View All Orders</a>
+    <a href="{{ url_for('reports.generate_reports') }}" class="btn btn-secondary">Generate Reports</a>
+</div>
+
+{% endif %}
+{% endblock %}

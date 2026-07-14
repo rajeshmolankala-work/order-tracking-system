@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Order Details - Order Tracking System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Order Details</h1>
+    <div class="header-actions">
+        <a href="{{ url_for('orders.view_orders') }}" class="btn btn-secondary">← Back to Orders</a>
+        <a href="{{ url_for('orders.edit_order', order_id=order.order_id) }}" class="btn btn-warning">Edit</a>
+        <form method="POST" action="{{ url_for('orders.delete_order', order_id=order.order_id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this order?');">
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+    </div>
+</div>
+
+<div class="order-details-container">
+    
+    <div class="details-section">
+        <h2>Order {{ order.order_id }}</h2>
+        
+        <div class="details-grid">
+            <div class="detail-item">
+                <label>Order ID:</label>
+                <value>{{ order.order_id }}</value>
+            </div>
+
+            <div class="detail-item">
+                <label>Order Date:</label>
+                <value>{{ order.order_date }}</value>
+            </div>
+
+            <div class="detail-item">
+                <label>Status:</label>
+                <value><span class="status-badge status-{{ order.status.lower().replace(' ', '-') }}">{{ order.status }}</span></value>
+            </div>
+
+            <div class="detail-item">
+                <label>Payment Status:</label>
+                <value><span class="status-badge payment-{{ order.payment_status.lower() }}">{{ order.payment_status }}</span></value>
+            </div>
+        </div>
+    </div>
+
+    <div class="details-section">
+        <h3>Customer Information</h3>
+        
+        <div class="details-grid">
+            <div class="detail-item">
+                <label>Customer Name:</label>
+                <value>{{ order.customer_name }}</value>
+            </div>
+
+            <div class="detail-item">
+                <label>Contact Number:</label>
+                <value>{{ order.contact_number }}</value>
+            </div>
+
+            <div class="detail-item full-width">
+                <label>Shipping Address:</label>
+                <value>{{ order.shipping_address }}</value>
+            </div>
+        </div>
+    </div>
+
+    <div class="details-section">
+        <h3>Product Information</h3>
+        
+        <div class="details-grid">
+            <div class="detail-item">
+                <label>Product Name:</label>
+                <value>{{ order.product_name }}</value>
+            </div>
+
+            <div class="detail-item">
+                <label>Quantity:</label>
+                <value>{{ order.quantity }}</value>
+            </div>
+
+            <div class="detail-item">
+                <label>Unit Price:</label>
+                <value>${{ "%.2f"|format(order.price) }}</value>
+            </div>
+
+            <div class="detail-item">
+                <label>Total Amount:</label>
+                <value><strong>${{ "%.2f"|format(total) }}</strong></value>
+            </div>
+        </div>
+    </div>
+
+    <div class="details-section">
+        <h3>Delivery Information</h3>
+        
+        <div class="details-grid">
+            <div class="detail-item">
+                <label>Expected Delivery Date:</label>
+                <value>{{ order.delivery_date or 'Not set' }}</value>
+            </div>
+
+            <div class="detail-item">
+                <label>Tracking Number:</label>
+                <value>{{ order.tracking_number or 'Not assigned' }}</value>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status History -->
+    <div class="details-section">
+        <h3>Status History</h3>
+        
+        {% if status_history %}
+        <div class="timeline">
+            {% for history in status_history %}
+            <div class="timeline-item">
+                <div class="timeline-marker status-{{ history.new_status.lower().replace(' ', '-') }}"></div>
+                <div class="timeline-content">
+                    <strong>{{ history.new_status }}</strong>
+                    <p class="text-muted">{{ history.changed_at }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted">No status history available.</p>
+        {% endif %}
+    </div>
+
+    <!-- Update Status Form -->
+    <div class="details-section">
+        <h3>Update Status</h3>
+        
+        <form method="POST" action="{{ url_for('orders.update_status', order_id=order.order_id) }}" id="statusForm" class="inline-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <select id="newStatus" name="status" required class="form-control">
+                        <option value="">-- Select New Status --</option>
+                        <option value="Pending" {% if order.status == 'Pending' %}disabled{% endif %}>Pending</option>
+                        <option value="Processing" {% if order.status == 'Processing' %}disabled{% endif %}>Processing</option>
+                        <option value="Packed" {% if order.status == 'Packed' %}disabled{% endif %}>Packed</option>
+                        <option value="Shipped" {% if order.status == 'Shipped' %}disabled{% endif %}>Shipped</option>
+                        <option value="Out for Delivery" {% if order.status == 'Out for Delivery' %}disabled{% endif %}>Out for Delivery</option>
+                        <option value="Delivered" {% if order.status == 'Delivered' %}disabled{% endif %}>Delivered</option>
+                        <option value="Cancelled" {% if order.status == 'Cancelled' %}disabled{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Update Status</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('statusForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const orderId = '{{ order.order_id }}';
+        
+        fetch(`/orders/${orderId}/update-status`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred');
+        });
+    });
+</script>
+{% endblock %}

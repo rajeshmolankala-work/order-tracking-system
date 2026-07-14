@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Add Order - Order Tracking System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Add New Order</h1>
+    <a href="{{ url_for('orders.view_orders') }}" class="btn btn-secondary">← Back to Orders</a>
+</div>
+
+<div class="form-container">
+    <form method="POST" action="{{ url_for('orders.add_order') }}" class="form">
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="order_id">Order ID: <span class="required">*</span></label>
+                <input type="text" id="order_id" name="order_id" required class="form-control" placeholder="e.g., ORD-001" maxlength="20">
+                <small>3-20 characters, letters, numbers, hyphens only</small>
+            </div>
+
+            <div class="form-group">
+                <label for="order_date">Order Date: <span class="required">*</span></label>
+                <input type="date" id="order_date" name="order_date" required class="form-control">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="customer_name">Customer Name: <span class="required">*</span></label>
+                <input type="text" id="customer_name" name="customer_name" required class="form-control" placeholder="Enter customer name" maxlength="100">
+            </div>
+
+            <div class="form-group">
+                <label for="contact_number">Contact Number: <span class="required">*</span></label>
+                <input type="text" id="contact_number" name="contact_number" required class="form-control" placeholder="e.g., +1234567890" maxlength="20">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="product_name">Product Name: <span class="required">*</span></label>
+                <input type="text" id="product_name" name="product_name" required class="form-control" placeholder="Enter product name" maxlength="100">
+            </div>
+
+            <div class="form-group">
+                <label for="quantity">Quantity: <span class="required">*</span></label>
+                <input type="number" id="quantity" name="quantity" required class="form-control" placeholder="0" min="1">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="price">Price: <span class="required">*</span></label>
+                <input type="number" id="price" name="price" required class="form-control" placeholder="0.00" step="0.01" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="delivery_date">Delivery Date:</label>
+                <input type="date" id="delivery_date" name="delivery_date" class="form-control">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="status">Status: <span class="required">*</span></label>
+                <select id="status" name="status" required class="form-control">
+                    <option value="">-- Select Status --</option>
+                    {% for status in statuses %}
+                    <option value="{{ status }}">{{ status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="payment_status">Payment Status: <span class="required">*</span></label>
+                <select id="payment_status" name="payment_status" required class="form-control">
+                    <option value="">-- Select Payment Status --</option>
+                    {% for payment_status in payment_statuses %}
+                    <option value="{{ payment_status }}">{{ payment_status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="tracking_number">Tracking Number:</label>
+                <input type="text" id="tracking_number" name="tracking_number" class="form-control" placeholder="Enter tracking number" maxlength="50">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="shipping_address">Shipping Address: <span class="required">*</span></label>
+            <textarea id="shipping_address" name="shipping_address" required class="form-control" placeholder="Enter complete shipping address" maxlength="250" rows="4"></textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add Order</button>
+            <a href="{{ url_for('orders.view_orders') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('order_date').valueAsDate = new Date();
+</script>
+{% endblock %}
